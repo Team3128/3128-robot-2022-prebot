@@ -35,8 +35,8 @@ public class RobotContainer {
 
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
 
-    private String trajectoryJson = "paths/4_Ball_ii.wpilib.json";
-    private Trajectory trajectory = new Trajectory();
+    private String[] trajectoryJson = {"paths/4_Ball_i.wpilib.json", "paths/4_Ball_ii.wpilib.json"};
+    private Trajectory[] trajectories = new Trajectory[2];
     private Command auto;
 
     private boolean DEBUG = true;
@@ -67,13 +67,15 @@ public class RobotContainer {
     private void initAutos() {
 
         try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson);
-            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[0]);
+            trajectories[0] = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            Path trajectoryPath2 = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[1]);
+            trajectories[1] = TrajectoryUtil.fromPathweaverJson(trajectoryPath2);
         } catch (IOException ex) {
             DriverStation.reportError("Unable to open trajectory: " + trajectoryJson, ex.getStackTrace());
         }
         
-        auto = new RamseteCommand(trajectory, 
+        auto = new RamseteCommand(trajectories[0], 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
                                 new SimpleMotorFeedforward(Constants.DriveConstants.kS,
@@ -85,6 +87,20 @@ public class RobotContainer {
                                 new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
                                 m_drive::tankDriveVolts,
                                 m_drive)
+        .andThen(
+            new RamseteCommand(trajectories[1], 
+                                m_drive::getPose,
+                                new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
+                                new SimpleMotorFeedforward(Constants.DriveConstants.kS,
+                                                            Constants.DriveConstants.kV,
+                                                            Constants.DriveConstants.kA),
+                                Constants.DriveConstants.DRIVE_KINEMATICS,
+                                m_drive::getWheelSpeeds,
+                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
+                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
+                                m_drive::tankDriveVolts,
+                                m_drive)
+        )
                                 .andThen(() -> m_drive.stop(), m_drive);
 
         // auto = new RamseteCommand(Trajectories.trajectorySimple, 
@@ -109,7 +125,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        m_drive.resetPose(trajectory.getInitialPose()); // change this if the trajectory being run changes
+        m_drive.resetPose(trajectories[0].getInitialPose()); // change this if the trajectory being run changes
         return auto;
     }
 }
