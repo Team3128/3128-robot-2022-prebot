@@ -2,6 +2,8 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/CommandScheduler": "Scheduler",
+      "/SmartDashboard/Drivetrain": "Subsystem",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/NAR_Drivetrain": "Subsystem",
       "/SmartDashboard/Scheduler": "Scheduler"

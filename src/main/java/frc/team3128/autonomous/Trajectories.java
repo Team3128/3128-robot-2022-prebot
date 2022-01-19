@@ -16,8 +16,7 @@ import frc.team3128.Constants;
 /**
  * 
  * Store trajectories for autonomous. Edit points here. 
- * There are many magic numbers in this class - makes it slightly easier to edit trajectories. With more accurate odometry, we could avoid this.
- * 
+ * This class may be used as a backup for PathWeaver trajectories.
  */
 public class Trajectories {
 

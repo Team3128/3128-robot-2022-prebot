@@ -1,13 +1,18 @@
 package frc.team3128;
 
+import java.io.IOException;
+import java.nio.file.Path;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.RamseteController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.trajectory.Trajectory;
+import edu.wpi.first.math.trajectory.TrajectoryUtil;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.ArcadeDrive;
@@ -29,6 +34,9 @@ public class RobotContainer {
     private NAR_Joystick m_rightStick;
 
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
+
+    private String trajectoryJson = "paths/4_Ball_ii.wpilib.json";
+    private Trajectory trajectory = new Trajectory();
     private Command auto;
 
     private boolean DEBUG = true;
@@ -52,12 +60,20 @@ public class RobotContainer {
     }   
 
     private void configureButtonBindings() {
-        m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
-        m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
+        m_rightStick.getButton(1).whenPressed(m_drive::resetGyro);
+        m_rightStick.getButton(2).whenPressed(m_drive::resetPose, m_drive);
     }
 
     private void initAutos() {
-        auto = new RamseteCommand(Trajectories.trajectorySimple, 
+
+        try {
+            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson);
+            trajectory = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+        } catch (IOException ex) {
+            DriverStation.reportError("Unable to open trajectory: " + trajectoryJson, ex.getStackTrace());
+        }
+        
+        auto = new RamseteCommand(trajectory, 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
                                 new SimpleMotorFeedforward(Constants.DriveConstants.kS,
@@ -93,7 +109,7 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        m_drive.resetPose(Trajectories.trajectorySimple.getInitialPose()); // change this if the trajectory being run changes
+        m_drive.resetPose(trajectory.getInitialPose()); // change this if the trajectory being run changes
         return auto;
     }
 }
