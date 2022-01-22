@@ -26,7 +26,7 @@ public class Constants {
 
         public static final double DRIVE_GEARING = 10.75; // rotations of the motor per rotations of the wheel
         public static final double WHEEL_RADIUS_METERS = 0.0762; // 3 inches
-        public static final double TRACK_WIDTH_METERS = 0.59312;        
+        public static final double TRACK_WIDTH_METERS = 0.5927;
         public static final DifferentialDriveKinematics DRIVE_KINEMATICS = new DifferentialDriveKinematics(TRACK_WIDTH_METERS);
 
         public static final double DRIVE_NU_TO_METER = WHEEL_RADIUS_METERS * 2 * Math.PI / ConversionConstants.SPARK_ENCODER_RESOLUTION / DRIVE_GEARING; // meters driven per encoder tick
@@ -46,7 +46,7 @@ public class Constants {
         //Ramsete constants
         public static final double RAMSETE_B = 2; //default value - don't change unless absolutely necessary
         public static final double RAMSETE_ZETA = 0.7; //default value - don't change unless absolutely necessary
-        public static final double RAMSETE_KP = 2.1963;
+        public static final double RAMSETE_KP = 3.5818; // Daniel - I don't trust this number but this is what we were given
 
         public static final DCMotor GEARBOX = DCMotor.getFalcon500(4); 
         public static final LinearSystem<N2, N2, N2> DRIVE_CHAR = 
