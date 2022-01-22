@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.POVButton;
 
-
 public class NAR_Joystick {
 
     private Joystick stick;
@@ -22,7 +21,7 @@ public class NAR_Joystick {
         buttons = new HashMap<Integer, JoystickButton>();
         stick = new Joystick(deviceNumber);
 
-        for(int i = 1; i < 13; i++)
+        for(int i = 1; i < 17; i++)
             buttons.put(i, new JoystickButton(stick, i));
 
         povDown = new POVButton(stick, 180);
@@ -64,13 +63,12 @@ public class NAR_Joystick {
         return stick.getZ();
     }
 
-    public double getThrottle() {
-        return stick.getThrottle();
-    }
-
     public double getTwist() {
         return stick.getTwist();
     }
 
-    
+    public double getThrottle() {
+        return stick.getThrottle();
+    }
+
 }
