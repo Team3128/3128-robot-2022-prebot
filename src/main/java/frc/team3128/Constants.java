@@ -11,6 +11,7 @@ public class Constants {
     public static class ConversionConstants {
         public static final double SPARK_ENCODER_RESOLUTION = 42;
         public static final double SPARKMAX_NUp100MS_TO_RPM = 10 * 60 / SPARK_ENCODER_RESOLUTION; // (sensor units per 100 ms to rpm)
+        public static final double INCHES_TO_METERS = 0.0254;
     }
 
     // Speedy Gonzales constants
@@ -82,5 +83,32 @@ public class Constants {
 
         public static final int ALIGN_PLATEAU_COUNT = 10; //Number of checks at correct RPM to shoot
         
+        // Ball Tracking Constants - Mika
+
+        public static final double BALL_TARGET_HEIGHT = 9.5 * ConversionConstants.INCHES_TO_METERS;
+        public static final double BALL_LL_HEIGHT = 21 * ConversionConstants.INCHES_TO_METERS;
+        public static final double BALL_LL_ANGLE = 1.0; // Math.acos(21.0 / 39.0); // 1.002186; // radians
+
+        public static final double GOAL_HORIZONTAL_OFFSET = 0; // goal of x displacement from robot to ball/target - ideally 0 but if limelight not center change 
+        public static final double BLIND_THRESHOLD = 10; // CHANGE THIS
+        public static final double BALL_THRESHOLD = 5;
+        
+        // PID is a work in progress - i stole these too 
+        public static final double BALL_VISION_kF = 0.8;
+        public static final double BALL_VISION_kP = 0.02;
+        public static final double BALL_VISION_kD = 0.00001;
+
+        public static final double BALL_BLIND_kF = 0.5;
+        public static final double BALL_BLIND_kP = 0;
+        public static final double BALL_BLIND_kD = 0;
+
+        // yoinked from deepspace - 2.5 = feet 
+        // this will need altering probably
+        public static final double BALL_DECELERATE_START_DISTANCE = 25 * ConversionConstants.INCHES_TO_METERS; // 2.5 * 12 * ConversionConstants.INCHES_TO_METERS;
+        public static final double BALL_DECELERATE_END_DISTANCE = 9.5 * ConversionConstants.INCHES_TO_METERS; // 2/3 * 12 * ConversionConstants.INCHES_TO_METERS;
+
+        public static final double BALL_VEL_THRESHOLD = 2.54; // m/s - 100 in/s 
+        public static final int BALL_VEL_PLATEAU_THRESHOLD = 10;
+
     }
 }
