@@ -64,7 +64,6 @@ public class RobotContainer {
         m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
         m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
         m_rightStick.getButton(3).whenPressed(new CmdBallPursuit(m_drive, ballLimelight));
-        m_rightStick.getButton(4).whenPressed(new CmdDebugging(ballLimelight));
     }
 
     private void initAutos() {
