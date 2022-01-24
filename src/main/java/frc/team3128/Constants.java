@@ -41,7 +41,7 @@ public class Constants {
         public static final double kVAngular = 1.5;       // magic numbers of doom
         public static final double kAAngular = 0.3;       // magic numbers of doom
 
-        public static final double MAX_DRIVE_VELOCITY = 4; // m/s - Real value ~5
+        public static final double MAX_DRIVE_VELOCITY = 2; // m/s - Real value ~5
         public static final double MAX_DRIVE_ACCELERATION = 2; // m/s^2 - I don't know what this number is
         public static final double MAX_DRIVE_VOLTAGE = 7; // volts (hopefully you could figure this out)
 
