@@ -41,6 +41,7 @@ public class ArcadeDrive extends CommandBase {
             turn = 0;
 
         m_drivetrain.arcadeDrive(xSpeed * throttle, turn * throttle);
+        
     }
     
     @Override

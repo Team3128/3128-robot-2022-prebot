@@ -11,8 +11,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.ArcadeDrive;
+import frc.team3128.commands.CmdBallJoystick;
 import frc.team3128.commands.CmdBallPursuit;
-import frc.team3128.commands.CmdDebugging;
 import frc.team3128.common.hardware.input.NAR_Joystick;
 import frc.team3128.common.hardware.limelight.Limelight;
 import frc.team3128.common.hardware.limelight.LimelightKey;
@@ -64,6 +64,7 @@ public class RobotContainer {
         m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
         m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
         m_rightStick.getButton(3).whenPressed(new CmdBallPursuit(m_drive, ballLimelight));
+        m_rightStick.getButton(4).whenPressed(new CmdBallJoystick(m_drive, ballLimelight));
     }
 
     private void initAutos() {

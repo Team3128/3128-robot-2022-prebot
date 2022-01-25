@@ -10,7 +10,7 @@ import frc.team3128.common.hardware.limelight.LimelightKey;
 import frc.team3128.common.utility.Log;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
-public class CmdBallPursuit extends CommandBase {
+public class CmdBallJoystick extends CommandBase {
     private final NAR_Drivetrain m_drivetrain;
 
     private final Limelight ballLimelight;
@@ -37,7 +37,7 @@ public class CmdBallPursuit extends CommandBase {
 
     private BallPursuitState aimState = BallPursuitState.SEARCHING;
     
-    public CmdBallPursuit(NAR_Drivetrain drive, Limelight ballLimelight) {
+    public CmdBallJoystick(NAR_Drivetrain drive, Limelight ballLimelight) {
         this.ballLimelight = ballLimelight;
         m_drivetrain = drive;
 
@@ -67,7 +67,7 @@ public class CmdBallPursuit extends CommandBase {
                     Log.info("CmdBallPursuit", "Target found.");
                     Log.info("CmdBallPursuit", "Switching to FEEDBACK...");
 
-                    m_drivetrain.tankDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
+                    m_drivetrain.arcadeDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
                     
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 
@@ -104,8 +104,8 @@ public class CmdBallPursuit extends CommandBase {
                     feedbackPower += Constants.VisionContants.BALL_VISION_kP * currentError;
                     feedbackPower += Constants.VisionContants.BALL_VISION_kD * (currentError - previousError) / (currentTime - previousTime);
                     
-                    leftPower = Math.min(Math.max(Constants.VisionContants.BALL_VISION_kF - feedbackPower, -1), 1);
-                    rightPower = Math.min(Math.max(Constants.VisionContants.BALL_VISION_kF + feedbackPower, -1), 1);
+                    leftPower = Math.min(Math.max(0 - feedbackPower, -1), 1);
+                    rightPower = Math.min(Math.max(0 + feedbackPower, -1), 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
@@ -117,7 +117,8 @@ public class CmdBallPursuit extends CommandBase {
                             / (Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - 
                                 Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
 
-                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
+                    // m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
+                    m_drivetrain.ArcadeDrive.m_static_;
                     previousTime = currentTime;
                     previousError = currentError;
                 }
@@ -135,10 +136,10 @@ public class CmdBallPursuit extends CommandBase {
                 feedbackPower += Constants.VisionContants.BALL_BLIND_kP * currentError;
                 feedbackPower += Constants.VisionContants.BALL_BLIND_kD * (currentError - previousError) / (currentTime - previousTime);
 
-                rightPower = Math.min(Math.max(Constants.VisionContants.BALL_BLIND_kF - feedbackPower, -1), 1);
-                leftPower = Math.min(Math.max(Constants.VisionContants.BALL_BLIND_kF + feedbackPower, -1), 1);
+                rightPower = Math.min(Math.max(0 - feedbackPower, -1), 1);
+                leftPower = Math.min(Math.max(0 + feedbackPower, -1), 1);
 
-                m_drivetrain.tankDrive(0.7*leftPower, 0.7*rightPower);
+                m_drivetrain.arcadeDrive(0.7*leftPower, 0.7*rightPower);
 
                 previousTime = currentTime;
                 previousError = currentError;
