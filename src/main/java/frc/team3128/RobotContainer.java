@@ -9,9 +9,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.ArcadeDrive;
 import frc.team3128.commands.CmdBallJoystick;
+import frc.team3128.commands.CmdBallJoystickPursuit;
 import frc.team3128.commands.CmdBallPursuit;
 import frc.team3128.common.hardware.input.NAR_Joystick;
 import frc.team3128.common.hardware.limelight.Limelight;
@@ -39,6 +41,8 @@ public class RobotContainer {
 
     private Limelight ballLimelight;
 
+    private CmdBallJoystickPursuit pursuit;
+
     public RobotContainer() {
 
         m_drive = NAR_Drivetrain.getInstance();
@@ -61,13 +65,15 @@ public class RobotContainer {
     }   
 
     private void configureButtonBindings() {
-        m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
+        //m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
         m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
         m_rightStick.getButton(3).whenPressed(new CmdBallPursuit(m_drive, ballLimelight));
-        m_rightStick.getButton(4).whenPressed(new CmdBallJoystick(m_drive, ballLimelight));
+        m_rightStick.getButton(4).whenPressed(new CmdBallJoystick(m_drive, ballLimelight, m_rightStick));
     }
 
     private void initAutos() {
+        pursuit = new CmdBallJoystickPursuit(m_drive, ballLimelight, m_rightStick);
+
         auto = new RamseteCommand(Trajectories.trajectorySimple, 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),

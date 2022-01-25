@@ -1,9 +1,12 @@
 package frc.team3128.commands;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team3128.Constants;
+import frc.team3128.common.hardware.input.NAR_Joystick;
 import frc.team3128.common.hardware.limelight.LEDMode;
 import frc.team3128.common.hardware.limelight.Limelight;
 import frc.team3128.common.hardware.limelight.LimelightKey;
@@ -24,11 +27,11 @@ public class CmdBallJoystick extends CommandBase {
 
     private double currentError, previousError;
     private double currentTime, previousTime;
-
+    
     private double feedbackPower;
     private double leftVel, rightVel;
     private double leftPower, rightPower;
-
+    private NAR_Joystick m_joystick;
     int targetCount, plateauCount;
 
     private enum BallPursuitState {
@@ -37,10 +40,10 @@ public class CmdBallJoystick extends CommandBase {
 
     private BallPursuitState aimState = BallPursuitState.SEARCHING;
     
-    public CmdBallJoystick(NAR_Drivetrain drive, Limelight ballLimelight) {
+    public CmdBallJoystick(NAR_Drivetrain drive, Limelight ballLimelight, NAR_Joystick joystick) {
         this.ballLimelight = ballLimelight;
         m_drivetrain = drive;
-
+        m_joystick = joystick;
         addRequirements(m_drivetrain);
     }
 
@@ -104,8 +107,15 @@ public class CmdBallJoystick extends CommandBase {
                     feedbackPower += Constants.VisionContants.BALL_VISION_kP * currentError;
                     feedbackPower += Constants.VisionContants.BALL_VISION_kD * (currentError - previousError) / (currentTime - previousTime);
                     
-                    leftPower = Math.min(Math.max(0 - feedbackPower, -1), 1);
-                    rightPower = Math.min(Math.max(0 + feedbackPower, -1), 1);
+                    double throttle = (-m_joystick.getThrottle() + 1) / 2;
+                    if(throttle < 0.3)
+                        throttle = 0.3;
+                    if (throttle > 0.8)
+                        throttle = 1;
+                    double x = -m_joystick.getY()*throttle;
+
+                    leftPower = Math.min(Math.max(x - feedbackPower, -1), 1);
+                    rightPower = Math.min(Math.max(x + feedbackPower, -1), 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
@@ -113,37 +123,30 @@ public class CmdBallJoystick extends CommandBase {
                     SmartDashboard.putNumber("Distance", approxDistance);
                     SmartDashboard.putNumber("Vertical Angle", previousVerticalAngle);
 
-                    multiplier = 1.0 - Math.min(Math.max((Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - approxDistance)
-                            / (Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - 
-                                Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
+                    // multiplier = 1.0 - Math.min(Math.max((Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - approxDistance)
+                    //         / (Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - 
+                    //             Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
+                    multiplier = 1.0;
 
-                    // m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
-                    m_drivetrain.ArcadeDrive.m_static_;
+                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
+                    // m_drivetrain.arcadeDrive(x, 0);
                     previousTime = currentTime;
                     previousError = currentError;
                 }
                 break;
             
             case BLIND:
-                currentBlindAngle = m_drivetrain.getHeading();
-                currentTime = RobotController.getFPGATime() / 1e6; // CONVERT UNITS
-                currentError = -currentBlindAngle;
+                double throttle = (-m_joystick.getThrottle() + 1) / 2;
+                if(throttle < 0.3)
+                    throttle = 0.3;
+                if (throttle > 0.8)
+                    throttle = 1;
+                double x = -m_joystick.getY()*throttle;
+                double y = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_joystick.getTwist()*throttle;
+                if (Math.abs(y) < Constants.DriveConstants.ARCADE_DRIVE_TURN_DEADBAND)
+                    y = 0;
 
-                // PID feedback loop for left and right powers based on gyro angle
-                // this needs some work - atm blind w/ its constants only drive forward
-                feedbackPower = 0;
-
-                feedbackPower += Constants.VisionContants.BALL_BLIND_kP * currentError;
-                feedbackPower += Constants.VisionContants.BALL_BLIND_kD * (currentError - previousError) / (currentTime - previousTime);
-
-                rightPower = Math.min(Math.max(0 - feedbackPower, -1), 1);
-                leftPower = Math.min(Math.max(0 + feedbackPower, -1), 1);
-
-                m_drivetrain.arcadeDrive(0.7*leftPower, 0.7*rightPower);
-
-                previousTime = currentTime;
-                previousError = currentError;
-
+                m_drivetrain.arcadeDrive(x, y);
                 // in an ideal world this would have to find more than one 
                 // or maybe that doesn't matter much because it will just go back to blind
                 // but maybe two? need testing of initial first
@@ -173,7 +176,7 @@ public class CmdBallJoystick extends CommandBase {
             }
 
             if (plateauCount >= Constants.VisionContants.BALL_VEL_PLATEAU_THRESHOLD) {
-                return true;
+                return false;
             }
         }
 
@@ -183,7 +186,7 @@ public class CmdBallJoystick extends CommandBase {
             approxDistance = ballLimelight.calculateDistToGroundTarget(previousVerticalAngle, Constants.VisionContants.BALL_TARGET_HEIGHT / 2);
             if (Constants.VisionContants.BALL_DECELERATE_END_DISTANCE > approxDistance && previousVerticalAngle < 20*Math.PI/180) {
                 Log.info("CmdBallPursuit", "decelerated! ending command now");
-                return true;
+                return false;
             }
         }
         return false;
