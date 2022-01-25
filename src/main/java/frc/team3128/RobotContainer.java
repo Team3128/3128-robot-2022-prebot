@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
-import frc.team3128.autonomous.Trajectories;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team3128.commands.ArcadeDrive;
 import frc.team3128.common.hardware.input.NAR_Joystick;
-import frc.team3128.common.utility.Log;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 /**
@@ -35,8 +35,8 @@ public class RobotContainer {
 
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
 
-    private String[] trajectoryJson = {"paths/3_BallHG_i.wpilib.json", "paths/3_BallHG_ii.wpilib.json","path/3_BallHG_iii.wpilib.json","path/3_BallHG_IV.wpilib.json"};
-    private Trajectory[] trajectories = new Trajectory[4];
+    private String[] trajectoryJson = {"paths/4_Ball_i.wpilib.json", "paths/4_Ball_ii.wpilib.json"};
+    private Trajectory[] trajectories = new Trajectory[trajectoryJson.length ];
     private Command auto;
 
     private boolean DEBUG = true;
@@ -66,19 +66,16 @@ public class RobotContainer {
     private void initAutos() {
 
         try {
-            Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[0]);
-            trajectories[0] = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
-            Path trajectoryPath2 = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[1]);
-            trajectories[1] = TrajectoryUtil.fromPathweaverJson(trajectoryPath2);
-            Path trajectoryPath3 = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[2]);
-            trajectories[2] = TrajectoryUtil.fromPathweaverJson(trajectoryPath3);
-            Path trajectoryPath4 = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[3]);
-            trajectories[3] = TrajectoryUtil.fromPathweaverJson(trajectoryPath4);
+            for (int i = 0; i < trajectoryJson.length; i++) {
+                Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve(trajectoryJson[i]);
+                trajectories[i] = TrajectoryUtil.fromPathweaverJson(trajectoryPath);
+            }
         } catch (IOException ex) {
             DriverStation.reportError("Unable to open trajectory: " + trajectoryJson, ex.getStackTrace());
         }
         
-        auto = new RamseteCommand(trajectories[0], 
+        auto = new SequentialCommandGroup(
+            new RamseteCommand(trajectories[0], 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
                                 new SimpleMotorFeedforward(Constants.DriveConstants.kS,
@@ -89,8 +86,7 @@ public class RobotContainer {
                                 new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
                                 new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
                                 m_drive::tankDriveVolts,
-                                m_drive)
-        .andThen(
+                                m_drive),
             new RamseteCommand(trajectories[1], 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
@@ -102,37 +98,10 @@ public class RobotContainer {
                                 new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
                                 new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
                                 m_drive::tankDriveVolts,
-                                m_drive)
-        )
-        .andThen(
-            new RamseteCommand(trajectories[2], 
-                                m_drive::getPose,
-                                new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
-                                new SimpleMotorFeedforward(Constants.DriveConstants.kS,
-                                                            Constants.DriveConstants.kV,
-                                                            Constants.DriveConstants.kA),
-                                Constants.DriveConstants.DRIVE_KINEMATICS,
-                                m_drive::getWheelSpeeds,
-                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
-                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
-                                m_drive::tankDriveVolts,
-                                m_drive)
-        )
-        .andThen(
-            new RamseteCommand(trajectories[3], 
-                                m_drive::getPose,
-                                new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
-                                new SimpleMotorFeedforward(Constants.DriveConstants.kS,
-                                                            Constants.DriveConstants.kV,
-                                                            Constants.DriveConstants.kA),
-                                Constants.DriveConstants.DRIVE_KINEMATICS,
-                                m_drive::getWheelSpeeds,
-                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
-                                new PIDController(Constants.DriveConstants.RAMSETE_KP, 0, 0),
-                                m_drive::tankDriveVolts,
-                                m_drive)
-        )
-        .andThen(() -> m_drive.stop(), m_drive);
+                                m_drive),
+            new InstantCommand(() -> m_drive.stop())
+        );
+
         // auto = new RamseteCommand(Trajectories.trajectorySimple, 
         //                             m_drive::getPose,
         //                             new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
