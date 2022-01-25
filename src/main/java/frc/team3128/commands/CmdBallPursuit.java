@@ -20,7 +20,6 @@ public class CmdBallPursuit extends CommandBase {
     private double currentHorizontalOffset;
     private double previousVerticalAngle;
     private double approxDistance;
-    private double currentBlindAngle;
 
     private double currentError, previousError;
     private double currentTime, previousTime;

@@ -1,7 +1,5 @@
 package frc.team3128.commands;
 
-import java.util.function.DoubleSupplier;
-
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -23,7 +21,6 @@ public class CmdBallJoystick extends CommandBase {
     private double currentHorizontalOffset;
     private double previousVerticalAngle;
     private double approxDistance;
-    private double currentBlindAngle;
 
     private double currentError, previousError;
     private double currentTime, previousTime;
@@ -71,8 +68,6 @@ public class CmdBallJoystick extends CommandBase {
                 if (targetCount > Constants.VisionContants.BALL_THRESHOLD) {
                     Log.info("CmdBallPursuit", "Target found.");
                     Log.info("CmdBallPursuit", "Switching to FEEDBACK...");
-
-                    // m_drivetrain.arcadeDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
                     
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 

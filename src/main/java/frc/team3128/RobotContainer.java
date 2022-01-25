@@ -53,7 +53,6 @@ public class RobotContainer {
         ballLimelight = new Limelight("limelight-sog", Constants.VisionContants.BALL_LL_ANGLE, Constants.VisionContants.BALL_LL_HEIGHT, 0, 0);
 
         m_commandScheduler.setDefaultCommand(m_drive, new ArcadeDrive(m_drive, m_rightStick::getY, m_rightStick::getTwist, m_rightStick::getThrottle));
-        //m_commandScheduler.setDefaultCommand(m_drive, new CmdBallPursuit(m_drive, ballLimelight));
 
         initAutos();
         configureButtonBindings();
