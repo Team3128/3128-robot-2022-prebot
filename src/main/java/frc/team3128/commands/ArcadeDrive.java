@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team3128.Constants;
+import frc.team3128.RobotContainer;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 public class ArcadeDrive extends CommandBase {
@@ -16,7 +17,6 @@ public class ArcadeDrive extends CommandBase {
     public ArcadeDrive(NAR_Drivetrain drivetrain, DoubleSupplier xSpeed, DoubleSupplier turn, DoubleSupplier throttle) {
         m_drivetrain = drivetrain;
         addRequirements(m_drivetrain);
-
         m_xSpeed = xSpeed;
         m_turn = turn;
         m_throttle = throttle;

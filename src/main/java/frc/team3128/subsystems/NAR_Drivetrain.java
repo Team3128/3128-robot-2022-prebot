@@ -157,14 +157,14 @@ public class NAR_Drivetrain extends SubsystemBase {
      * @return the left encoder velocity in meters per second
      */
     public double getLeftEncoderSpeed() {
-        return leftLeader.getSelectedSensorVelocity() * DriveConstants.DRIVE_NU_TO_METER * 10;
+        return leftLeader.getSelectedSensorVelocity() * DriveConstants.DRIVE_NUp100MS_TO_MPS;
     }
 
     /**
      * @return the right encoder velocity in meters per second
      */
     public double getRightEncoderSpeed() {
-        return rightLeader.getSelectedSensorVelocity() * DriveConstants.DRIVE_NU_TO_METER * 10;
+        return rightLeader.getSelectedSensorVelocity() * DriveConstants.DRIVE_NUp100MS_TO_MPS;
     }
     
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
