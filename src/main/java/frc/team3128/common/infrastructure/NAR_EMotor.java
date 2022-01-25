@@ -1,8 +1,7 @@
-package frc.team3128.common;
+package frc.team3128.common.infrastructure;
 
 import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 
-// Daniel - ensure that subclasses implement the conventions used here
 public interface NAR_EMotor extends MotorController {
 
     /**
@@ -25,14 +24,20 @@ public interface NAR_EMotor extends MotorController {
      */
     public void setEncoderPosition(double encPos);
 
-    public void setQuadSimPosition(double pos);
-    public void setQuadSimVelocity(double vel);
+    /**
+     * @param pos Position in encoder ticks
+     */
+    public void setSimPosition(double pos);
 
     /**
-     * @param motor NAR_EMotor to follow
+     * @param vel Velocity in encoder ticks / second
+     */
+    public void setSimVelocity(double vel);
+
+    /**
+     * @param motor NAR_EMotor to follow 
+     * 
+     * Restrict this to only follow motor controllers of the same type
      */
     public void follow(NAR_EMotor motor);
-
-    // This is stupid and needs a better solution
-    public NAR_EMotor getMotor();
 }
