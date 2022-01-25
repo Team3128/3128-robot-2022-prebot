@@ -32,6 +32,8 @@ public class CmdBallJoystickPursuit extends CommandBase {
     private double leftVel, rightVel;
     private double leftPower, rightPower;
     private NAR_Joystick m_joystick;
+
+    private double throttle, x, y;
     int targetCount, plateauCount;
 
     private enum BallPursuitState {
@@ -70,11 +72,11 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     Log.info("CmdBallPursuit", "Target found.");
                     Log.info("CmdBallPursuit", "Switching to FEEDBACK...");
 
-                    m_drivetrain.arcadeDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
+                    // m_drivetrain.arcadeDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
                     
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 
-                    previousTime = RobotController.getFPGATime() / 1e6; // CONVERT UNITS
+                    previousTime = RobotController.getFPGATime() / 1e6; 
                     previousError = Constants.VisionContants.GOAL_HORIZONTAL_OFFSET - currentHorizontalOffset;
 
                     aimState = BallPursuitState.FEEDBACK;
@@ -85,20 +87,11 @@ public class CmdBallJoystickPursuit extends CommandBase {
             case FEEDBACK:
                 if (!ballLimelight.hasValidTarget()) {
                     Log.info("CmdBallPursuit", "No valid target anymore.");
-                    // this below line is bad and needs fixing
-                    if ((ballLimelight.cameraAngle > 0 ? 1 : -1) * previousVerticalAngle > Constants.VisionContants.BLIND_THRESHOLD) {
-                        Log.info("CmdBallPursuit", "Switching to BLIND...");
-
-                        m_drivetrain.resetGyro();
-                        aimState = BallPursuitState.BLIND;
-                    } else {
-                        Log.info("CmdBallPursuit", "Returning to SEARCHING...");
-                        aimState = BallPursuitState.SEARCHING;
-                    }
+                    aimState = BallPursuitState.SEARCHING;
                 } else {
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 
-                    currentTime = RobotController.getFPGATime() / 1e6; // CONVERT UNITS
+                    currentTime = RobotController.getFPGATime() / 1e6; 
                     currentError = Constants.VisionContants.GOAL_HORIZONTAL_OFFSET - currentHorizontalOffset;
 
                     // PID feedback loop for left+right powers based on horizontal offset errors
@@ -107,15 +100,14 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     feedbackPower += Constants.VisionContants.BALL_VISION_kP * currentError;
                     feedbackPower += Constants.VisionContants.BALL_VISION_kD * (currentError - previousError) / (currentTime - previousTime);
                     
-                    double throttle = (-m_joystick.getThrottle() + 1) / 2;
-                    if(throttle < 0.3)
-                        throttle = 0.3;
-                    if (throttle > 0.8)
-                        throttle = 1;
-                    double x = -m_joystick.getY()*throttle;
+                    // joystick adding power back/forth
+                    throttle = (-m_joystick.getThrottle() + 1) / 2;
+                    if (throttle < 0.3) throttle = 0.3;
+                    if (throttle > 0.6) throttle = 0.6;
+                    x = -m_joystick.getY();
 
-                    leftPower = Math.min(Math.max(x - feedbackPower, -1), 1);
-                    rightPower = Math.min(Math.max(x + feedbackPower, -1), 1);
+                    leftPower = Math.min(Math.max(0.3 + x*throttle - feedbackPower, -1), 1);
+                    rightPower = Math.min(Math.max(0.3 + x*throttle + feedbackPower, -1), 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
@@ -128,25 +120,23 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     //             Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
                     multiplier = 1.0;
 
-                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
-                    // m_drivetrain.arcadeDrive(x, 0);
+                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code - switch to arcadedrive
+                    // TODO: switch to arcade drive
                     previousTime = currentTime;
                     previousError = currentError;
                 }
                 break;
             
             case BLIND:
-                double throttle = (-m_joystick.getThrottle() + 1) / 2;
-                if(throttle < 0.3)
-                    throttle = 0.3;
-                if (throttle > 0.8)
-                    throttle = 1;
-                double x = -m_joystick.getY()*throttle;
-                double y = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_joystick.getTwist()*throttle;
-                if (Math.abs(y) < Constants.DriveConstants.ARCADE_DRIVE_TURN_DEADBAND)
-                    y = 0;
+                throttle = (-m_joystick.getThrottle() + 1) / 2;
+                if (throttle < 0.3) throttle = 0.3;
+                if (throttle > 0.8) throttle = 1;
+                x = -m_joystick.getY()*throttle;
+                y = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_joystick.getTwist()*throttle;
+                if (Math.abs(y) < Constants.DriveConstants.ARCADE_DRIVE_TURN_DEADBAND) y = 0;
 
                 m_drivetrain.arcadeDrive(x, y);
+
                 // in an ideal world this would have to find more than one 
                 // or maybe that doesn't matter much because it will just go back to blind
                 // but maybe two? need testing of initial first

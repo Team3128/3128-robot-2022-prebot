@@ -67,7 +67,7 @@ public class CmdBallPursuit extends CommandBase {
                     Log.info("CmdBallPursuit", "Target found.");
                     Log.info("CmdBallPursuit", "Switching to FEEDBACK...");
 
-                    m_drivetrain.tankDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
+                    // m_drivetrain.tankDrive(0.8*Constants.VisionContants.BALL_VISION_kF, 0.8*Constants.VisionContants.BALL_VISION_kF);
                     
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 
@@ -82,16 +82,7 @@ public class CmdBallPursuit extends CommandBase {
             case FEEDBACK:
                 if (!ballLimelight.hasValidTarget()) {
                     Log.info("CmdBallPursuit", "No valid target anymore.");
-                    // this below line is bad and needs fixing
-                    if ((ballLimelight.cameraAngle > 0 ? 1 : -1) * previousVerticalAngle > Constants.VisionContants.BLIND_THRESHOLD) {
-                        Log.info("CmdBallPursuit", "Switching to BLIND...");
-
-                        m_drivetrain.resetGyro();
-                        aimState = BallPursuitState.BLIND;
-                    } else {
-                        Log.info("CmdBallPursuit", "Returning to SEARCHING...");
-                        aimState = BallPursuitState.SEARCHING;
-                    }
+                    aimState = BallPursuitState.SEARCHING;
                 } else {
                     currentHorizontalOffset = ballLimelight.getValue(LimelightKey.HORIZONTAL_OFFSET, 5);
 
@@ -117,7 +108,7 @@ public class CmdBallPursuit extends CommandBase {
                             / (Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - 
                                 Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
 
-                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code 
+                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code - switch to arcade drive
                     previousTime = currentTime;
                     previousError = currentError;
                 }
@@ -125,26 +116,7 @@ public class CmdBallPursuit extends CommandBase {
             
             case BLIND:
 
-                m_drivetrain.tankDrive(0.2, -0.2);
-
-                // currentBlindAngle = m_drivetrain.getHeading();
-                // currentTime = RobotController.getFPGATime() / 1e6; // CONVERT UNITS
-                // currentError = -currentBlindAngle;
-
-                // // PID feedback loop for left and right powers based on gyro angle
-                // // this needs some work - atm blind w/ its constants only drive forward
-                // feedbackPower = 0;
-
-                // feedbackPower += Constants.VisionContants.BALL_BLIND_kP * currentError;
-                // feedbackPower += Constants.VisionContants.BALL_BLIND_kD * (currentError - previousError) / (currentTime - previousTime);
-
-                // rightPower = Math.min(Math.max(Constants.VisionContants.BALL_BLIND_kF - feedbackPower, -1), 1);
-                // leftPower = Math.min(Math.max(Constants.VisionContants.BALL_BLIND_kF + feedbackPower, -1), 1);
-
-                // m_drivetrain.tankDrive(0.7*leftPower, 0.7*rightPower);
-
-                // previousTime = currentTime;
-                // previousError = currentError;
+                m_drivetrain.tankDrive(0.25, -0.25);
 
                 // in an ideal world this would have to find more than one 
                 // or maybe that doesn't matter much because it will just go back to blind

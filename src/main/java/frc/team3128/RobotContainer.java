@@ -41,8 +41,6 @@ public class RobotContainer {
 
     private Limelight ballLimelight;
 
-    private CmdBallJoystickPursuit pursuit;
-
     public RobotContainer() {
 
         m_drive = NAR_Drivetrain.getInstance();
@@ -69,11 +67,10 @@ public class RobotContainer {
         m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
         m_rightStick.getButton(3).whenPressed(new CmdBallPursuit(m_drive, ballLimelight));
         m_rightStick.getButton(4).whenPressed(new CmdBallJoystick(m_drive, ballLimelight, m_rightStick));
+        m_rightStick.getButton(1).whenHeld(new CmdBallJoystickPursuit(m_drive, ballLimelight, m_rightStick));
     }
 
     private void initAutos() {
-        pursuit = new CmdBallJoystickPursuit(m_drive, ballLimelight, m_rightStick);
-
         auto = new RamseteCommand(Trajectories.trajectorySimple, 
                                 m_drive::getPose,
                                 new RamseteController(Constants.DriveConstants.RAMSETE_B, Constants.DriveConstants.RAMSETE_ZETA),
