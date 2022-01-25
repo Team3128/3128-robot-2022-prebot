@@ -1,6 +1,9 @@
 package frc.team3128.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.kauailabs.navx.frc.AHRS;
+
+import net.thefletcher.revrobotics.enums.MotorType;
 
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
@@ -18,28 +21,28 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.team3128.Constants.DriveConstants;
 import frc.team3128.Robot;
-import frc.team3128.common.NAR_EMotor;
-import frc.team3128.common.hardware.motor.NAR_TalonFX;
+import frc.team3128.common.hardware.motor.*;
+import frc.team3128.common.infrastructure.NAR_EMotor;
 
 public class NAR_Drivetrain extends SubsystemBase {
 
     // Initialize the generic motors
     // TODO: Weird difference in speed for different motors
 
-    private NAR_TalonFX leftLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_LEFT_LEADER_ID);
-    private NAR_TalonFX rightLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_RIGHT_LEADER_ID);
-    private NAR_TalonFX leftFollower = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_LEFT_FOLLOWER_ID);
-    private NAR_TalonFX rightFollower = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_RIGHT_FOLLOWER_ID);
+    private NAR_EMotor leftLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_LEFT_LEADER_ID);
+    private NAR_EMotor rightLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_RIGHT_LEADER_ID);
+    private NAR_EMotor leftFollower = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_LEFT_FOLLOWER_ID);
+    private NAR_EMotor rightFollower = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_RIGHT_FOLLOWER_ID);
 
-    // private NAR_EMotor leftLeader = new NAR_TalonSRX(0);
-    // private NAR_EMotor rightLeader = new NAR_TalonSRX(1);
-    // private NAR_EMotor leftFollower = new NAR_TalonSRX(2);
-    // private NAR_EMotor rightFollower = new NAR_TalonSRX(3);
+    // private NAR_EMotor leftLeader = new NAR_TalonSRX(DriveConstants.DRIVE_MOTOR_LEFT_LEADER_ID);
+    // private NAR_EMotor rightLeader = new NAR_TalonSRX(DriveConstants.DRIVE_MOTOR_RIGHT_LEADER_ID);
+    // private NAR_EMotor leftFollower = new NAR_TalonSRX(DriveConstants.DRIVE_MOTOR_LEFT_FOLLOWER_ID);
+    // private NAR_EMotor rightFollower = new NAR_TalonSRX(DriveConstants.DRIVE_MOTOR_RIGHT_FOLLOWER_ID);
     
-    // private NAR_EMotor leftLeader = new NAR_CANSparkMax(0, MotorType.kBrushed);
-    // private NAR_EMotor rightLeader = new NAR_CANSparkMax(1, MotorType.kBrushed);
-    // private NAR_EMotor leftFollower = new NAR_CANSparkMax(2, MotorType.kBrushed);
-    // private NAR_EMotor rightFollower = new NAR_CANSparkMax(3, MotorType.kBrushed);
+    // private NAR_EMotor leftLeader = new NAR_CANSparkMax(DriveConstants.KIT_MOTOR_LEFT_LEADER_ID, MotorType.kBrushless);
+    // private NAR_EMotor rightLeader = new NAR_CANSparkMax(DriveConstants.KIT_MOTOR_RIGHT_LEADER_ID, MotorType.kBrushless);
+    // private NAR_EMotor leftFollower = new NAR_CANSparkMax(DriveConstants.KIT_MOTOR_LEFT_FOLLOWER_ID, MotorType.kBrushless);
+    // private NAR_EMotor rightFollower = new NAR_CANSparkMax(DriveConstants.KIT_MOTOR_RIGHT_FOLLOWER_ID, MotorType.kBrushless);
 
     public static NAR_Drivetrain instance;
 
@@ -54,11 +57,9 @@ public class NAR_Drivetrain extends SubsystemBase {
 
     public NAR_Drivetrain(){
 
-        super();
-
         // Not sure what the deal is here
-        leftFollower.follow((NAR_EMotor)leftLeader);
-        rightFollower.follow((NAR_EMotor)rightLeader);
+        leftFollower.follow(leftLeader);
+        rightFollower.follow(rightLeader);
         
         leftLeader.setInverted(true);
         leftFollower.setInverted(true);
@@ -120,11 +121,14 @@ public class NAR_Drivetrain extends SubsystemBase {
         robotDriveSim.update(0.02);
 
         // Store simulated motor states
-        leftLeader.setQuadSimPosition(robotDriveSim.getLeftPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
-        leftLeader.setQuadSimVelocity(robotDriveSim.getLeftVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
-        rightLeader.setQuadSimPosition(robotDriveSim.getRightPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
-        rightLeader.setQuadSimVelocity(robotDriveSim.getRightVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
+        leftLeader.setSimPosition(robotDriveSim.getLeftPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
+        leftLeader.setSimVelocity(robotDriveSim.getLeftVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
+        rightLeader.setSimPosition(robotDriveSim.getRightPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
+        rightLeader.setSimVelocity(robotDriveSim.getRightVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
         
+        SmartDashboard.putNumber("Left Sim Speed", leftLeader.getSelectedSensorVelocity());
+        SmartDashboard.putNumber("Right Sim Speed", rightLeader.getSelectedSensorVelocity());
+
         // TODO: Abstractify gyro
         int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
@@ -181,7 +185,7 @@ public class NAR_Drivetrain extends SubsystemBase {
      */
     public void tankDrive(double leftSpeed, double rightSpeed) {
         robotDrive.tankDrive(leftSpeed, rightSpeed, false);
-        // robotDrive.feed();
+        robotDrive.feed();
     }
 
     /**
@@ -190,6 +194,7 @@ public class NAR_Drivetrain extends SubsystemBase {
      */
     public void tankDriveVolts(double leftVolts, double rightVolts) {
         tankDrive(leftVolts / RobotController.getBatteryVoltage(), rightVolts / RobotController.getBatteryVoltage());
+        robotDrive.feed();
     }
 
     /**
