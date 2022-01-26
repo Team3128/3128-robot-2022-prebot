@@ -1,14 +1,15 @@
 package frc.team3128.commands;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team3128.Constants;
-import frc.team3128.common.hardware.input.NAR_Joystick;
-import frc.team3128.common.hardware.limelight.LEDMode;
-import frc.team3128.common.hardware.limelight.Limelight;
-import frc.team3128.common.hardware.limelight.LimelightKey;
-import frc.team3128.common.utility.Log;
+import frc.team3128.hardware.input.NAR_Joystick;
+import frc.team3128.hardware.limelight.LEDMode;
+import frc.team3128.hardware.limelight.Limelight;
+import frc.team3128.hardware.limelight.LimelightKey;
+import frc.team3128.utility.Log;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 public class CmdBallJoystick extends CommandBase {
@@ -57,7 +58,7 @@ public class CmdBallJoystick extends CommandBase {
         switch (aimState) {
             case SEARCHING:
                 if (ballLimelight.hasValidTarget()) {
-                    targetCount ++;
+                    targetCount++;
                 } else {
                     targetCount = 0;
                     // in an ideal world this would happen after a set time but that is for after testing
@@ -99,10 +100,10 @@ public class CmdBallJoystick extends CommandBase {
                     throttle = (-m_joystick.getThrottle() + 1) / 2;
                     if (throttle < 0.3) throttle = 0.3;
                     if (throttle > 0.8) throttle = 1;
-                    x = -m_joystick.getY();
 
-                    leftPower = Math.min(Math.max(x*throttle - feedbackPower, -1), 1);
-                    rightPower = Math.min(Math.max(x*throttle + feedbackPower, -1), 1);
+                    x = -m_joystick.getY();
+                    leftPower = MathUtil.clamp(x*throttle - feedbackPower, -1, 1);
+                    rightPower = MathUtil.clamp(x*throttle + feedbackPower, -1, 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
