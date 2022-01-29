@@ -26,7 +26,7 @@ public class CmdBallJoystickPursuit extends CommandBase {
     private double currentTime, previousTime;
     
     private double feedbackPower;
-    private double leftPower, rightPower;
+    private double power;
     private NAR_Joystick m_joystick;
 
     private double throttle, x, y;
@@ -97,25 +97,22 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     // joystick adding power back/forth
                     throttle = (-m_joystick.getThrottle() + 1) / 2;
                     if (throttle < 0.3) throttle = 0.3;
-                    if (throttle > 0.6) throttle = 0.6;
+                    if (throttle > 0.8) throttle = 1.0;
                     x = -m_joystick.getY();
 
-                    leftPower = Math.min(Math.max(0.3 + x*throttle - feedbackPower, -1), 1);
-                    rightPower = Math.min(Math.max(0.3 + x*throttle + feedbackPower, -1), 1);
+                    power = Math.min(Math.max(0.4+x*throttle, -1), 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
                     approxDistance = ballLimelight.calculateDistToGroundTarget(previousVerticalAngle, Constants.VisionContants.BALL_TARGET_HEIGHT / 2);
-                    SmartDashboard.putNumber("Distance", approxDistance);
-                    SmartDashboard.putNumber("Vertical Angle", previousVerticalAngle);
 
                     // multiplier = 1.0 - Math.min(Math.max((Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - approxDistance)
                     //         / (Constants.VisionContants.BALL_DECELERATE_START_DISTANCE - 
                     //             Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
                     multiplier = 1.0;
 
-                    m_drivetrain.tankDrive(0.7*multiplier*leftPower, 0.7*multiplier*rightPower); // bad code - switch to arcadedrive
-                    // TODO: switch to arcade drive
+                    m_drivetrain.arcadeDrive(power*multiplier, feedbackPower);
+                    
                     previousTime = currentTime;
                     previousError = currentError;
                 }
