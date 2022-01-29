@@ -59,7 +59,6 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     targetCount ++;
                 } else {
                     targetCount = 0;
-                    // in an ideal world this would happen after a set time but that is for after testing
                     Log.info("CmdBallPursuit", "No targets ... switching to BLIND...");
                     aimState = BallPursuitState.BLIND;
                 }
@@ -93,6 +92,8 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     
                     feedbackPower += Constants.VisionContants.BALL_VISION_kP * currentError;
                     feedbackPower += Constants.VisionContants.BALL_VISION_kD * (currentError - previousError) / (currentTime - previousTime);
+
+                    feedbackPower = Math.min(Math.max(feedbackPower, -1), 1);
                     
                     // joystick adding power back/forth
                     throttle = (-m_joystick.getThrottle() + 1) / 2;
@@ -100,7 +101,7 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     if (throttle > 0.8) throttle = 1.0;
                     x = -m_joystick.getY();
 
-                    power = Math.min(Math.max(0.4+x*throttle, -1), 1);
+                    power = Math.min(Math.max(Constants.VisionContants.BALL_AUTO_PURSUIT_kF + x*throttle, -1), 1);
                     
                     // calculations to decelerate as the robot nears the target
                     previousVerticalAngle = ballLimelight.getValue(LimelightKey.VERTICAL_OFFSET, 2) * Math.PI / 180;
@@ -111,8 +112,8 @@ public class CmdBallJoystickPursuit extends CommandBase {
                     //             Constants.VisionContants.BALL_DECELERATE_END_DISTANCE), 0.0), 1.0);
                     multiplier = 1.0;
 
-                    m_drivetrain.arcadeDrive(power*multiplier, feedbackPower);
-                    
+                    m_drivetrain.arcadeDrive(0.7*power*multiplier, 0.7*feedbackPower);
+
                     previousTime = currentTime;
                     previousError = currentError;
                 }
@@ -128,9 +129,7 @@ public class CmdBallJoystickPursuit extends CommandBase {
 
                 m_drivetrain.arcadeDrive(x, y);
 
-                // in an ideal world this would have to find more than one 
-                // or maybe that doesn't matter much because it will just go back to blind
-                // but maybe two? need testing of initial first
+
                 if (ballLimelight.hasValidTarget()) {
                     Log.info("CmdBallPursuit", "Target found - Switching to SEARCHING");
                     aimState = BallPursuitState.SEARCHING;

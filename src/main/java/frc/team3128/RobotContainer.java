@@ -12,7 +12,6 @@ import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.autonomous.Trajectories;
 import frc.team3128.commands.ArcadeDrive;
-import frc.team3128.commands.CmdBallJoystick;
 import frc.team3128.commands.CmdBallJoystickPursuit;
 import frc.team3128.commands.CmdBallPursuit;
 import frc.team3128.hardware.input.NAR_Joystick;
@@ -65,7 +64,6 @@ public class RobotContainer {
         //m_rightStick.getButton(1).whenPressed(new InstantCommand(m_drive::resetGyro));
         m_rightStick.getButton(2).whenPressed(new InstantCommand(m_drive::resetPose));
         m_rightStick.getButton(3).whenPressed(new CmdBallPursuit(m_drive, ballLimelight));
-        m_rightStick.getButton(4).whenPressed(new CmdBallJoystick(m_drive, ballLimelight, m_rightStick));
         m_rightStick.getButton(1).whenHeld(new CmdBallJoystickPursuit(m_drive, ballLimelight, m_rightStick));
     }
 
