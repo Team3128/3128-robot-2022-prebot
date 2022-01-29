@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team3128.commands.ArcadeDrive;
-import frc.team3128.hardware.input.NAR_Joystick;
+import frc.team3128.common.hardware.input.NAR_Joystick;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 /**
