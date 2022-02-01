@@ -61,10 +61,10 @@ public class NAR_Drivetrain extends SubsystemBase {
         leftFollower.follow(leftLeader);
         rightFollower.follow(rightLeader);
         
-        leftLeader.setInverted(true);
-        leftFollower.setInverted(true);
-        rightLeader.setInverted(false);
-        rightFollower.setInverted(false);
+        leftLeader.setInverted(false);
+        leftFollower.setInverted(false);
+        rightLeader.setInverted(true);
+        rightFollower.setInverted(true);
 
         robotDrive = new DifferentialDrive(
             new MotorControllerGroup(leftLeader, leftFollower),

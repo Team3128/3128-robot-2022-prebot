@@ -40,7 +40,7 @@ public class ArcadeDrive extends CommandBase {
         if (Math.abs(turn) < Constants.DriveConstants.ARCADE_DRIVE_TURN_DEADBAND)
             turn = 0;
 
-        m_drivetrain.arcadeDrive(xSpeed * throttle, turn * throttle);
+        m_drivetrain.arcadeDrive(-xSpeed * throttle, -turn * throttle);
     }
     
     @Override
