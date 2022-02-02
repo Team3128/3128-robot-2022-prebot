@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team3128.commands.ArcadeDrive;
-import frc.team3128.common.hardware.input.NAR_Joystick;
+import frc.team3128.hardware.input.NAR_Joystick;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 /**
@@ -39,7 +39,7 @@ public class RobotContainer {
     private Trajectory[] trajectories = new Trajectory[trajectoryJson.length ];
     private Command auto;
 
-    private boolean DEBUG = true;
+    private boolean DEBUG = false;
 
     public RobotContainer() {
         m_drive = NAR_Drivetrain.getInstance();
@@ -49,7 +49,7 @@ public class RobotContainer {
         m_leftStick = new NAR_Joystick(0);
         m_rightStick = new NAR_Joystick(1);
 
-        m_commandScheduler.setDefaultCommand(m_drive, new ArcadeDrive(m_drive, m_rightStick::getY, m_rightStick::getTwist, m_rightStick::getThrottle));
+        m_commandScheduler.setDefaultCommand(m_drive, new ArcadeDrive(m_drive, m_rightStick::getRawY, m_rightStick::getRawTwist, m_rightStick::getRawThrottle));
 
         initAutos();
         configureButtonBindings();
@@ -111,12 +111,22 @@ public class RobotContainer {
         //                             .andThen(() -> m_drive.stop(), m_drive);
     }
 
-    private void dashboardInit() {
+    public void dashboardInit() {
         if (DEBUG) {
             SmartDashboard.putData("CommandScheduler", m_commandScheduler);
             SmartDashboard.putData("Drivetrain", m_drive);
         }
-            
+
+        SmartDashboard.putNumber("R Stick RawX:", m_rightStick.getRawX());
+        SmartDashboard.putNumber("R Stick RawY:", m_rightStick.getRawY());
+        SmartDashboard.putNumber("R Stick RawZ:", m_rightStick.getRawZ());
+        SmartDashboard.putNumber("R Stick Raw throttle:", m_rightStick.getRawThrottle());
+
+        SmartDashboard.putNumber("R Stick X:", m_rightStick.getX());
+        SmartDashboard.putNumber("R Stick Y:", m_rightStick.getY());
+        SmartDashboard.putNumber("R Stick Z:", m_rightStick.getZ());
+        SmartDashboard.putNumber("R Stick Throttle:", m_rightStick.getThrottle());
+
     }
 
     public void stopDrivetrain() {
