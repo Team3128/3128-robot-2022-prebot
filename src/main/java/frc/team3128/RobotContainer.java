@@ -36,7 +36,7 @@ public class RobotContainer {
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
 
     private String[] trajectoryJson = {"paths/4_Ball_i.wpilib.json", "paths/4_Ball_ii.wpilib.json"};
-    private Trajectory[] trajectories = new Trajectory[trajectoryJson.length ];
+    private Trajectory[] trajectories = new Trajectory[trajectoryJson.length];
     private Command auto;
 
     private boolean DEBUG = true;
