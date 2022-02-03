@@ -27,7 +27,6 @@ import frc.team3128.common.infrastructure.NAR_EMotor;
 public class NAR_Drivetrain extends SubsystemBase {
 
     // Initialize the generic motors
-    // TODO: Weird difference in speed for different motors
 
     private NAR_EMotor leftLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_LEFT_LEADER_ID);
     private NAR_EMotor rightLeader = new NAR_TalonFX(DriveConstants.DRIVE_MOTOR_RIGHT_LEADER_ID);
@@ -50,7 +49,6 @@ public class NAR_Drivetrain extends SubsystemBase {
     private DifferentialDrivetrainSim robotDriveSim;
     private DifferentialDriveOdometry odometry;
 
-    // TODO: Abstractify gyro
     private static AHRS gyro = new AHRS(SPI.Port.kMXP);;
 
     private static Field2d field;
@@ -122,14 +120,13 @@ public class NAR_Drivetrain extends SubsystemBase {
 
         // Store simulated motor states
         leftLeader.setSimPosition(robotDriveSim.getLeftPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
-        leftLeader.setSimVelocity(robotDriveSim.getLeftVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
+        leftLeader.setSimVelocity(robotDriveSim.getLeftVelocityMetersPerSecond() / DriveConstants.DRIVE_NU_TO_METER);
         rightLeader.setSimPosition(robotDriveSim.getRightPositionMeters() / DriveConstants.DRIVE_NU_TO_METER);
-        rightLeader.setSimVelocity(robotDriveSim.getRightVelocityMetersPerSecond() / DriveConstants.DRIVE_NUp100MS_TO_MPS);
+        rightLeader.setSimVelocity(robotDriveSim.getRightVelocityMetersPerSecond() / DriveConstants.DRIVE_NU_TO_METER);
         
         SmartDashboard.putNumber("Left Sim Speed", leftLeader.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Right Sim Speed", rightLeader.getSelectedSensorVelocity());
 
-        // TODO: Abstractify gyro
         int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
         SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
         angle.set(robotDriveSim.getHeading().getDegrees()); // @Nathan: I tested this out, this seems to work. This preserves parity w/ the real robot in angle, odometry
