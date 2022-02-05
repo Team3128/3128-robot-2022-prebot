@@ -29,7 +29,12 @@ public class ArcadeDrive extends CommandBase {
     public void execute() {
         double throttle = m_throttle.getAsDouble();
 
-        double xSpeed = m_xSpeed.getAsDouble();
+        if(throttle < 0.3)
+            throttle = 0.3;
+        if (throttle > 0.8)
+            throttle = 1;
+
+        double xSpeed = m_xSpeed.getAsDouble(); //invert xSpeed
         double turn = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_turn.getAsDouble();
 
         m_drivetrain.arcadeDrive(xSpeed * throttle, turn * throttle);
