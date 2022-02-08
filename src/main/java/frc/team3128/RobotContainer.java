@@ -17,8 +17,11 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.team3128.commands.ArcadeDrive;
+import frc.team3128.commands.CmdAlign;
 import frc.team3128.common.hardware.input.NAR_Joystick;
 import frc.team3128.subsystems.NAR_Drivetrain;
+import frc.team3128.common.hardware.limelight.LEDMode;
+import frc.team3128.common.hardware.limelight.Limelight;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -36,10 +39,13 @@ public class RobotContainer {
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
 
     private String[] trajectoryJson = {"paths/4_Ball_i.wpilib.json", "paths/4_Ball_ii.wpilib.json"};
-    private Trajectory[] trajectories = new Trajectory[trajectoryJson.length ];
+    private Trajectory[] trajectories = new Trajectory[trajectoryJson.length];
     private Command auto;
 
     private boolean DEBUG = true;
+
+    public CmdAlign alignCmd;
+    public Limelight shooterLimelight;
 
     public RobotContainer() {
         m_drive = NAR_Drivetrain.getInstance();
@@ -51,6 +57,9 @@ public class RobotContainer {
 
         m_commandScheduler.setDefaultCommand(m_drive, new ArcadeDrive(m_drive, m_rightStick::getRawY, m_rightStick::getRawTwist, m_rightStick::getRawThrottle));
 
+        shooterLimelight = new Limelight("limelight-cog", -26.0, 0, 0, 30);
+        alignCmd = new CmdAlign(m_drive, shooterLimelight);
+
         initAutos();
         configureButtonBindings();
         dashboardInit();
@@ -60,7 +69,10 @@ public class RobotContainer {
 
     private void configureButtonBindings() {
         m_rightStick.getButton(1).whenPressed(m_drive::resetGyro);
-        m_rightStick.getButton(2).whenPressed(m_drive::resetPose, m_drive);
+        m_rightStick.getButton(3).whenPressed(m_drive::resetPose, m_drive);
+
+        m_rightStick.getButton(2).whenActive(alignCmd);
+        m_rightStick.getButton(2).whenReleased(() -> alignCmd.cancel());
     }
 
     private void initAutos() {
