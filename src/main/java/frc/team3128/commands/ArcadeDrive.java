@@ -2,6 +2,7 @@ package frc.team3128.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.team3128.Constants;
 import frc.team3128.subsystems.NAR_Drivetrain;
@@ -37,7 +38,10 @@ public class ArcadeDrive extends CommandBase {
         double xSpeed = m_xSpeed.getAsDouble(); //invert xSpeed
         double turn = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_turn.getAsDouble();
 
-        m_drivetrain.arcadeDrive(-xSpeed * throttle, -turn * throttle);
+        m_drivetrain.arcadeDrive(xSpeed * throttle, turn * throttle);
+
+        SmartDashboard.putNumber("Raw throttle", m_throttle.getAsDouble());
+        SmartDashboard.putNumber("Transformed throttle", throttle);
     }
     
     @Override

@@ -10,6 +10,7 @@ import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive.WheelSpeeds;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -59,10 +60,10 @@ public class NAR_Drivetrain extends SubsystemBase {
         leftFollower.follow(leftLeader);
         rightFollower.follow(rightLeader);
         
-        leftLeader.setInverted(false);
-        leftFollower.setInverted(false);
-        rightLeader.setInverted(true);
-        rightFollower.setInverted(true);
+        leftLeader.setInverted(true);
+        leftFollower.setInverted(true);
+        rightLeader.setInverted(false);
+        rightFollower.setInverted(false);
 
         robotDrive = new DifferentialDrive(
             new MotorControllerGroup(leftLeader, leftFollower),
@@ -169,7 +170,10 @@ public class NAR_Drivetrain extends SubsystemBase {
     }
 
     public void arcadeDrive(double x, double y) {
-        robotDrive.arcadeDrive(x, y, false);
+        // robotDrive.arcadeDrive(x, y, false);
+        WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(x, y, false);
+        robotDrive.tankDrive(0.9575*speeds.left, speeds.right, false);
+        robotDrive.feed();
     }
 
     public void stop() {
