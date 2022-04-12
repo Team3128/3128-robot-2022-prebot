@@ -16,10 +16,13 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RamseteCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.team3128.commands.ArcadeDrive;
 import frc.team3128.commands.CmdAlign;
 import frc.team3128.common.hardware.input.NAR_Joystick;
+import frc.team3128.subsystems.LED;
 import frc.team3128.subsystems.NAR_Drivetrain;
+import frc.team3128.subsystems.LED.LEDState;
 import frc.team3128.common.hardware.limelight.LEDMode;
 import frc.team3128.common.hardware.limelight.Limelight;
 
@@ -33,6 +36,7 @@ import frc.team3128.common.hardware.limelight.Limelight;
 public class RobotContainer {
 
     private NAR_Drivetrain m_drive;
+    private LED led;
     private NAR_Joystick m_leftStick;
     private NAR_Joystick m_rightStick;
 
@@ -49,6 +53,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         m_drive = NAR_Drivetrain.getInstance();
+        led = LED.getInstance();
 
         //Enable all PIDSubsystems so that useOutput runs
 
@@ -73,6 +78,11 @@ public class RobotContainer {
 
         m_rightStick.getButton(2).whenActive(alignCmd);
         m_rightStick.getButton(2).whenReleased(() -> alignCmd.cancel());
+
+        m_leftStick.getButton(2).whenPressed(() -> led.setState(LEDState.RAINBOW));
+        m_leftStick.getButton(3).whenPressed(() -> led.setState(LEDState.RED));
+        m_leftStick.getButton(4).whenPressed(() -> led.setState(LEDState.BLUE));
+        m_leftStick.getPOVButton(0).whenPressed(() -> led.setState(LEDState.SCANNER));
     }
 
     private void initAutos() {

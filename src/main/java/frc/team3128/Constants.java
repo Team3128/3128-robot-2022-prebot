@@ -24,7 +24,7 @@ public class Constants {
         public static final int DRIVE_MOTOR_RIGHT_FOLLOWER_ID = 3;
         
 
-        public static final double ARCADE_DRIVE_TURN_MULT = 0.7;
+        public static final double ARCADE_DRIVE_TURN_MULT = 0.7 * 0.35;
         public static final double ARCADE_DRIVE_TURN_DEADBAND = 0.05;
 
         public static final double DRIVE_GEARING = 9.6; // rotations of the motor per rotations of the wheel
@@ -60,6 +60,7 @@ public class Constants {
             kVAngular,          // kvVoltSecondsPerRadian
             kAAngular           // kaVoltSecondsSquaredPerRadian
         );
+        public static final double ARCADE_DRIVE_RATE_LIMIT = 2.0;
     }
 
     public static class VisionContants {

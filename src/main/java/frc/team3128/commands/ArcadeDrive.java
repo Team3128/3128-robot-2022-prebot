@@ -1,49 +1,40 @@
 package frc.team3128.commands;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.team3128.Constants;
+import frc.team3128.Constants.DriveConstants;
 import frc.team3128.subsystems.NAR_Drivetrain;
 
 public class ArcadeDrive extends CommandBase {
+
     private final NAR_Drivetrain m_drivetrain;
     private final DoubleSupplier m_xSpeed;
     private final DoubleSupplier m_turn;
     private final DoubleSupplier m_throttle;
 
+    private SlewRateLimiter filter = new SlewRateLimiter(DriveConstants.ARCADE_DRIVE_RATE_LIMIT);
 
     public ArcadeDrive(NAR_Drivetrain drivetrain, DoubleSupplier xSpeed, DoubleSupplier turn, DoubleSupplier throttle) {
         m_drivetrain = drivetrain;
-        addRequirements(m_drivetrain);
+        
         m_xSpeed = xSpeed;
         m_turn = turn;
         m_throttle = throttle;
-    }
-    
-    @Override
-    public void initialize() {
+
+        addRequirements(m_drivetrain);
     }
     
     @Override
     public void execute() {
         double throttle = m_throttle.getAsDouble();
 
-        if(throttle < 0.3)
-            throttle = 0.3;
-        if (throttle > 0.8)
-            throttle = 1;
+        double xSpeed = m_xSpeed.getAsDouble();
+        double turn = DriveConstants.ARCADE_DRIVE_TURN_MULT * m_turn.getAsDouble();
 
-        double turnthrottle = throttle - 0.2;
-
-        double xSpeed = m_xSpeed.getAsDouble(); //invert xSpeed
-        double turn = Constants.DriveConstants.ARCADE_DRIVE_TURN_MULT * m_turn.getAsDouble();
-
-        m_drivetrain.arcadeDrive(xSpeed * throttle, turn * throttle);
-
-        SmartDashboard.putNumber("Raw throttle", m_throttle.getAsDouble());
-        SmartDashboard.putNumber("Transformed throttle", throttle);
+        m_drivetrain.arcadeDrive(filter.calculate(xSpeed * throttle), turn);
     }
     
     @Override
