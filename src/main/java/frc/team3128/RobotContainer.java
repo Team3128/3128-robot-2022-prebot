@@ -39,6 +39,7 @@ public class RobotContainer {
     private LED led;
     private NAR_Joystick m_leftStick;
     private NAR_Joystick m_rightStick;
+    private Intake m_intake;
 
     private CommandScheduler m_commandScheduler = CommandScheduler.getInstance();
 
